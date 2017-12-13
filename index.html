@@ -5,16 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>HTML to PNG</title>
+    <title>html2png</title>
 
     <!-- Stylesheets -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet">
 </head>
 <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse navbar-static-top">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -23,7 +24,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">HTLM to PNG</a>
+                <a class="navbar-brand" href="#">html2png</a>
             </div>
         </div>
     </nav>
@@ -36,16 +37,22 @@
             <div class="col-md-8">
                 <h3>HTML <small>Enter your HTML below</small></h3>
                 <hr>
+                <button class="btn btn-default" type="button" id="insert-table">Table</button>
+                <button class="btn btn-default" type="button" id="insert-font-awesome-icon">Font Awesome Icon</button>
+                <hr>
                 <div class="form-group">
-                    <textarea class="form-control editor" rows="10" id="editor-html"></textarea>
+                    <textarea class="form-control editor" rows="20" id="editor-html"></textarea>
                 </div>
             </div>
 
             <div class="col-md-4">
                 <h3>CSS <small>Enter your CSS below</small></h3>
                 <hr>
+                <button class="btn btn-default" type="button" id="toggle-bootstrap-css">Bootstrap CSS</button>
+                <button class="btn btn-default" type="button" id="toggle-font-awesome-css">Font Awesome CSS</button>
+                <hr>
                 <div class="form-group">
-                    <textarea class="form-control editor" rows="10"id="editor-css"></textarea>
+                    <textarea class="form-control editor" rows="20" id="editor-css"></textarea>
                 </div>
             </div>
         </div>
@@ -57,11 +64,13 @@
             <div class="col-md-12">
                 <h3>Output <small>Generated output</small></h3>
                 <hr>
+                <button class="btn btn-info" type="button" id="create-png">PNG</button>
+                <hr>
                 <div>
                     <iframe id="preview">
                         <!DOCTYPE html>
                         <html>
-                            <head><meta charset="utf-8"></head>
+                            <head></head>
                             <body></body>
                         </html>
                     </iframe>

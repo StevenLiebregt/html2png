@@ -1,7 +1,6 @@
-body {
-    margin-top: 50px;
-}
-
 #preview {
     width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    height: 600px;
 }
