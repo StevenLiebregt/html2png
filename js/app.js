@@ -65,19 +65,33 @@ $(function() {
             updatePreview();
     }
 
-    function insertFontAwesomeIcon() {
+    function showFontAwesomeModal() {
         if (!hasFontAwesomeCss) {
             toggleFontAwesomeCss();
         }
 
         // TODO Show modal with all icons, search option
+        $('#font-awesome-modal').modal();
+    }
+
+    function insertFontAwesomeIcon() {
+        var content = ""; // TODO Chosen icon
+
+        var cursor = $htmlEditor.prop('selectionStart');
+        var v = $htmlEditor.val();
+        var before = v.substring(0, cursor);
+        var after = v.substring(cursor, v.length);
+
+        // $htmlEditor.val(before + content + after);
     }
 
     $('#toggle-bootstrap-css').on('click', toggleBootstrapCss);
     $('#toggle-font-awesome-css').on('click', toggleFontAwesomeCss);
 
     $('#insert-table').on('click', insertTableHtml);
-    $('#insert-font-awesome-icon').on('click', insertFontAwesomeIcon);
+    $('#insert-font-awesome-icon').on('click', showFontAwesomeModal);
+
+    $('#create-png').on('click', createPng);
 
     function updatePreview() {
         var preview = $('#preview')[0].contentWindow.document;
@@ -94,9 +108,11 @@ $(function() {
         $('head', preview).append('<style>' + $('#editor-css').val() + '</style>');
     }
 
-    /**
-     * On editing one of the editors, refresh the preview window
-     */
-    $('.editor').on('keyup', updatePreview);
+    $('.editor').on('keyup', updatePreview); // Editor changed, update
 
+    function createPng() {
+        html2canvas(document.querySelector('#preview-window')).then(function(canvas) {
+            // document.body.appendChild(canvas); // TODO add this to a modal so the user can save the png
+        });
+    }
 });
