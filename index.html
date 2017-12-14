@@ -39,6 +39,7 @@
                 <hr>
                 <button class="btn btn-default" type="button" id="insert-table">Table</button>
                 <button class="btn btn-default" type="button" id="insert-font-awesome-icon">Font Awesome Icon</button>
+                <button class="btn btn-danger pull-right" type="button" id="delete-html"><i class="fa fa-trash"></i></button>
                 <hr>
                 <div class="form-group">
                     <textarea class="form-control editor" rows="20" id="editor-html"></textarea>
@@ -50,6 +51,7 @@
                 <hr>
                 <button class="btn btn-default" type="button" id="toggle-bootstrap-css">Bootstrap CSS</button>
                 <button class="btn btn-default" type="button" id="toggle-font-awesome-css">Font Awesome CSS</button>
+                <button class="btn btn-danger pull-right" type="button" id="delete-css"><i class="fa fa-trash"></i></button>
                 <hr>
                 <div class="form-group">
                     <textarea class="form-control editor" rows="20" id="editor-css"></textarea>
@@ -64,7 +66,25 @@
             <div class="col-md-12">
                 <h3>Output <small>Generated output</small></h3>
                 <hr>
-                <button class="btn btn-info" type="button" id="create-png">PNG</button>
+                <form class="form-inline">
+                    <div class="form-group">
+                        <!--<label for="preview-width">Width </label>-->
+                        <div class="input-group">
+                            <div class="input-group-addon">x</div>
+                            <input type="text" class="form-control" id="preview-width" value="600">
+                            <div class="input-group-addon"><i class="fa fa-question" data-toggle="tooltip" data-placement="top" title="Change the width of the image, the maximum width is the viewport of your browser"></i></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <!--<label for="preview-height">Height </label>-->
+                        <div class="input-group">
+                            <div class="input-group-addon">y</div>
+                            <input type="text" class="form-control" id="preview-height" value="340">
+                            <div class="input-group-addon"><i class="fa fa-question" data-toggle="tooltip" data-placement="top" title="Change the height of the image"></i></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-info" type="button" id="create-png">Create PNG</button>
+                </form>
                 <hr>
                 <div id="preview-window">
                     <iframe id="preview">
@@ -79,6 +99,12 @@
         </div>
 
     </div>
+
+    <footer class="footer">
+        <div class="container">
+            <span class="text-muted">Made by <a href="https://github.com/StevenLiebregt">Steven Liebregt</a></span>
+        </div>
+    </footer>
 
     <!-- Font Awesome Icons Modal -->
     <div id="font-awesome-modal" class="modal fade" tabindex="-1" role="dialog">
@@ -100,7 +126,6 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Insert</button>
                 </div>
             </div>
         </div>
@@ -108,14 +133,13 @@
 
     <!-- PNG Modal -->
     <div id="png-modal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">PNG Output <small>Right click to save</small></h4>
                 </div>
-                <div class="modal-body">
-
+                <div class="modal-body" id="png-content">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -124,10 +148,49 @@
         </div>
     </div>
 
+    <!-- Delete HTML Confirmation Modal -->
+    <div id="delete-html-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Delete HTML?</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete your HTML?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirm-delete-html">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete CSS Confirmation Modal -->
+    <div id="delete-css-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Delete CSS?</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete your CSS?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirm-delete-css">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/html2canvas.min.js"></script>
-    <script src="js/app.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/html2canvas.min.js"></script>
+    <script type="text/javascript" src="js/emmet.min.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
 </body>
 </html>
