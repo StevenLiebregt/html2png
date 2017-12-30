@@ -1,5 +1,5 @@
 /*!
- * html2canvas 1.0.0-alpha.4 <https://html2canvas.hertzen.com>
+ * html2canvas 1.0.0-alpha.6 <https://html2canvas.hertzen.com>
  * Copyright (c) 2017 Niklas von Hertzen <https://hertzen.com>
  * Released under MIT License
  */
@@ -75,7 +75,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 22);
+/******/ 	return __webpack_require__(__webpack_require__.s = 24);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -349,7 +349,7 @@ var _Vector = __webpack_require__(7);
 
 var _Vector2 = _interopRequireDefault(_Vector);
 
-var _BezierCurve = __webpack_require__(27);
+var _BezierCurve = __webpack_require__(29);
 
 var _BezierCurve2 = _interopRequireDefault(_BezierCurve);
 
@@ -538,7 +538,7 @@ exports.calculateLengthFromValueWithUnit = exports.LENGTH_TYPE = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _NodeContainer = __webpack_require__(5);
+var _NodeContainer = __webpack_require__(4);
 
 var _NodeContainer2 = _interopRequireDefault(_NodeContainer);
 
@@ -651,22 +651,6 @@ var SMALL_IMAGE = exports.SMALL_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAIAAA
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-var PATH = exports.PATH = {
-    VECTOR: 0,
-    BEZIER_CURVE: 1,
-    CIRCLE: 2
-};
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -676,41 +660,47 @@ var _Color2 = _interopRequireDefault(_Color);
 
 var _Util = __webpack_require__(3);
 
-var _background = __webpack_require__(6);
+var _background = __webpack_require__(5);
 
-var _border = __webpack_require__(10);
+var _border = __webpack_require__(12);
 
-var _borderRadius = __webpack_require__(28);
+var _borderRadius = __webpack_require__(30);
 
-var _display = __webpack_require__(29);
+var _display = __webpack_require__(31);
 
-var _float = __webpack_require__(30);
+var _float = __webpack_require__(32);
 
-var _font = __webpack_require__(31);
+var _font = __webpack_require__(33);
 
-var _letterSpacing = __webpack_require__(32);
+var _letterSpacing = __webpack_require__(34);
 
-var _overflow = __webpack_require__(33);
+var _listStyle = __webpack_require__(8);
 
-var _padding = __webpack_require__(14);
+var _margin = __webpack_require__(35);
 
-var _position = __webpack_require__(15);
+var _overflow = __webpack_require__(36);
 
-var _textDecoration = __webpack_require__(9);
+var _padding = __webpack_require__(16);
 
-var _textShadow = __webpack_require__(34);
+var _position = __webpack_require__(17);
 
-var _textTransform = __webpack_require__(16);
+var _textDecoration = __webpack_require__(11);
 
-var _transform = __webpack_require__(35);
+var _textShadow = __webpack_require__(37);
 
-var _visibility = __webpack_require__(36);
+var _textTransform = __webpack_require__(18);
 
-var _zIndex = __webpack_require__(37);
+var _transform = __webpack_require__(38);
+
+var _visibility = __webpack_require__(39);
+
+var _zIndex = __webpack_require__(40);
 
 var _Bounds = __webpack_require__(1);
 
-var _Input = __webpack_require__(17);
+var _Input = __webpack_require__(19);
+
+var _ListItem = __webpack_require__(13);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -725,8 +715,13 @@ var NodeContainer = function () {
         _classCallCheck(this, NodeContainer);
 
         this.parent = parent;
+        this.tagName = node.tagName;
         this.index = index;
         this.childNodes = [];
+        this.listItems = [];
+        if (typeof node.start === 'number') {
+            this.listStart = node.start;
+        }
         var defaultView = node.ownerDocument.defaultView;
         var scrollX = defaultView.pageXOffset;
         var scrollY = defaultView.pageYOffset;
@@ -746,6 +741,8 @@ var NodeContainer = function () {
             float: (0, _float.parseCSSFloat)(style.float),
             font: (0, _font.parseFont)(style),
             letterSpacing: (0, _letterSpacing.parseLetterSpacing)(style.letterSpacing),
+            listStyle: display === _display.DISPLAY.LIST_ITEM ? (0, _listStyle.parseListStyle)(style) : null,
+            margin: (0, _margin.parseMargin)(style),
             opacity: parseFloat(style.opacity),
             overflow: INPUT_TAGS.indexOf(node.tagName) === -1 ? (0, _overflow.parseOverflow)(style.overflow) : _overflow.OVERFLOW.HIDDEN,
             padding: (0, _padding.parsePadding)(style),
@@ -761,6 +758,15 @@ var NodeContainer = function () {
         if (this.isTransformed()) {
             // getBoundingClientRect provides values post-transform, we want them without the transformation
             node.style.transform = 'matrix(1,0,0,1,0,0)';
+        }
+
+        if (display === _display.DISPLAY.LIST_ITEM) {
+            var listOwner = (0, _ListItem.getListOwner)(this);
+            if (listOwner) {
+                var listIndex = listOwner.listItems.length;
+                listOwner.listItems.push(this);
+                this.listIndex = node.hasAttribute('value') && typeof node.value === 'number' ? node.value : listIndex === 0 ? typeof listOwner.listStart === 'number' ? listOwner.listStart : 1 : listOwner.listItems[listIndex - 1].listIndex + 1;
+            }
         }
 
         // TODO move bound retrieval for all nodes to a later stage?
@@ -785,7 +791,7 @@ var NodeContainer = function () {
         key: 'getClipPaths',
         value: function getClipPaths() {
             var parentClips = this.parent ? this.parent.getClipPaths() : [];
-            var isClipped = this.style.overflow === _overflow.OVERFLOW.HIDDEN || this.style.overflow === _overflow.OVERFLOW.SCROLL;
+            var isClipped = this.style.overflow !== _overflow.OVERFLOW.VISIBLE;
 
             return isClipped ? parentClips.concat([(0, _Bounds.calculatePaddingBoxPath)(this.curvedBounds)]) : parentClips;
         }
@@ -873,7 +879,7 @@ var getImage = function getImage(node, resourceLoader) {
 };
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -892,7 +898,7 @@ var _Length = __webpack_require__(2);
 
 var _Length2 = _interopRequireDefault(_Length);
 
-var _Size = __webpack_require__(26);
+var _Size = __webpack_require__(28);
 
 var _Size2 = _interopRequireDefault(_Size);
 
@@ -902,7 +908,7 @@ var _Vector2 = _interopRequireDefault(_Vector);
 
 var _Bounds = __webpack_require__(1);
 
-var _padding = __webpack_require__(14);
+var _padding = __webpack_require__(16);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1232,6 +1238,22 @@ var parseBackgroundImage = exports.parseBackgroundImage = function parseBackgrou
 };
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var PATH = exports.PATH = {
+    VECTOR: 0,
+    BEZIER_CURVE: 1,
+    CIRCLE: 2
+};
+
+/***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1242,7 +1264,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _Path = __webpack_require__(4);
+var _Path = __webpack_require__(6);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1274,8 +1296,282 @@ exports.default = Vector;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.parseListStyle = exports.parseListStyleType = exports.LIST_STYLE_TYPE = exports.LIST_STYLE_POSITION = undefined;
 
-var _ForeignObjectRenderer = __webpack_require__(19);
+var _background = __webpack_require__(5);
+
+var LIST_STYLE_POSITION = exports.LIST_STYLE_POSITION = {
+    INSIDE: 0,
+    OUTSIDE: 1
+};
+
+var LIST_STYLE_TYPE = exports.LIST_STYLE_TYPE = {
+    NONE: -1,
+    DISC: 0,
+    CIRCLE: 1,
+    SQUARE: 2,
+    DECIMAL: 3,
+    CJK_DECIMAL: 4,
+    DECIMAL_LEADING_ZERO: 5,
+    LOWER_ROMAN: 6,
+    UPPER_ROMAN: 7,
+    LOWER_GREEK: 8,
+    LOWER_ALPHA: 9,
+    UPPER_ALPHA: 10,
+    ARABIC_INDIC: 11,
+    ARMENIAN: 12,
+    BENGALI: 13,
+    CAMBODIAN: 14,
+    CJK_EARTHLY_BRANCH: 15,
+    CJK_HEAVENLY_STEM: 16,
+    CJK_IDEOGRAPHIC: 17,
+    DEVANAGARI: 18,
+    ETHIOPIC_NUMERIC: 19,
+    GEORGIAN: 20,
+    GUJARATI: 21,
+    GURMUKHI: 22,
+    HEBREW: 22,
+    HIRAGANA: 23,
+    HIRAGANA_IROHA: 24,
+    JAPANESE_FORMAL: 25,
+    JAPANESE_INFORMAL: 26,
+    KANNADA: 27,
+    KATAKANA: 28,
+    KATAKANA_IROHA: 29,
+    KHMER: 30,
+    KOREAN_HANGUL_FORMAL: 31,
+    KOREAN_HANJA_FORMAL: 32,
+    KOREAN_HANJA_INFORMAL: 33,
+    LAO: 34,
+    LOWER_ARMENIAN: 35,
+    MALAYALAM: 36,
+    MONGOLIAN: 37,
+    MYANMAR: 38,
+    ORIYA: 39,
+    PERSIAN: 40,
+    SIMP_CHINESE_FORMAL: 41,
+    SIMP_CHINESE_INFORMAL: 42,
+    TAMIL: 43,
+    TELUGU: 44,
+    THAI: 45,
+    TIBETAN: 46,
+    TRAD_CHINESE_FORMAL: 47,
+    TRAD_CHINESE_INFORMAL: 48,
+    UPPER_ARMENIAN: 49,
+    DISCLOSURE_OPEN: 50,
+    DISCLOSURE_CLOSED: 51
+};
+
+var parseListStyleType = exports.parseListStyleType = function parseListStyleType(type) {
+    switch (type) {
+        case 'disc':
+            return LIST_STYLE_TYPE.DISC;
+        case 'circle':
+            return LIST_STYLE_TYPE.CIRCLE;
+        case 'square':
+            return LIST_STYLE_TYPE.SQUARE;
+        case 'decimal':
+            return LIST_STYLE_TYPE.DECIMAL;
+        case 'cjk-decimal':
+            return LIST_STYLE_TYPE.CJK_DECIMAL;
+        case 'decimal-leading-zero':
+            return LIST_STYLE_TYPE.DECIMAL_LEADING_ZERO;
+        case 'lower-roman':
+            return LIST_STYLE_TYPE.LOWER_ROMAN;
+        case 'upper-roman':
+            return LIST_STYLE_TYPE.UPPER_ROMAN;
+        case 'lower-greek':
+            return LIST_STYLE_TYPE.LOWER_GREEK;
+        case 'lower-alpha':
+            return LIST_STYLE_TYPE.LOWER_ALPHA;
+        case 'upper-alpha':
+            return LIST_STYLE_TYPE.UPPER_ALPHA;
+        case 'arabic-indic':
+            return LIST_STYLE_TYPE.ARABIC_INDIC;
+        case 'armenian':
+            return LIST_STYLE_TYPE.ARMENIAN;
+        case 'bengali':
+            return LIST_STYLE_TYPE.BENGALI;
+        case 'cambodian':
+            return LIST_STYLE_TYPE.CAMBODIAN;
+        case 'cjk-earthly-branch':
+            return LIST_STYLE_TYPE.CJK_EARTHLY_BRANCH;
+        case 'cjk-heavenly-stem':
+            return LIST_STYLE_TYPE.CJK_HEAVENLY_STEM;
+        case 'cjk-ideographic':
+            return LIST_STYLE_TYPE.CJK_IDEOGRAPHIC;
+        case 'devanagari':
+            return LIST_STYLE_TYPE.DEVANAGARI;
+        case 'ethiopic-numeric':
+            return LIST_STYLE_TYPE.ETHIOPIC_NUMERIC;
+        case 'georgian':
+            return LIST_STYLE_TYPE.GEORGIAN;
+        case 'gujarati':
+            return LIST_STYLE_TYPE.GUJARATI;
+        case 'gurmukhi':
+            return LIST_STYLE_TYPE.GURMUKHI;
+        case 'hebrew':
+            return LIST_STYLE_TYPE.HEBREW;
+        case 'hiragana':
+            return LIST_STYLE_TYPE.HIRAGANA;
+        case 'hiragana-iroha':
+            return LIST_STYLE_TYPE.HIRAGANA_IROHA;
+        case 'japanese-formal':
+            return LIST_STYLE_TYPE.JAPANESE_FORMAL;
+        case 'japanese-informal':
+            return LIST_STYLE_TYPE.JAPANESE_INFORMAL;
+        case 'kannada':
+            return LIST_STYLE_TYPE.KANNADA;
+        case 'katakana':
+            return LIST_STYLE_TYPE.KATAKANA;
+        case 'katakana-iroha':
+            return LIST_STYLE_TYPE.KATAKANA_IROHA;
+        case 'khmer':
+            return LIST_STYLE_TYPE.KHMER;
+        case 'korean-hangul-formal':
+            return LIST_STYLE_TYPE.KOREAN_HANGUL_FORMAL;
+        case 'korean-hanja-formal':
+            return LIST_STYLE_TYPE.KOREAN_HANJA_FORMAL;
+        case 'korean-hanja-informal':
+            return LIST_STYLE_TYPE.KOREAN_HANJA_INFORMAL;
+        case 'lao':
+            return LIST_STYLE_TYPE.LAO;
+        case 'lower-armenian':
+            return LIST_STYLE_TYPE.LOWER_ARMENIAN;
+        case 'malayalam':
+            return LIST_STYLE_TYPE.MALAYALAM;
+        case 'mongolian':
+            return LIST_STYLE_TYPE.MONGOLIAN;
+        case 'myanmar':
+            return LIST_STYLE_TYPE.MYANMAR;
+        case 'oriya':
+            return LIST_STYLE_TYPE.ORIYA;
+        case 'persian':
+            return LIST_STYLE_TYPE.PERSIAN;
+        case 'simp-chinese-formal':
+            return LIST_STYLE_TYPE.SIMP_CHINESE_FORMAL;
+        case 'simp-chinese-informal':
+            return LIST_STYLE_TYPE.SIMP_CHINESE_INFORMAL;
+        case 'tamil':
+            return LIST_STYLE_TYPE.TAMIL;
+        case 'telugu':
+            return LIST_STYLE_TYPE.TELUGU;
+        case 'thai':
+            return LIST_STYLE_TYPE.THAI;
+        case 'tibetan':
+            return LIST_STYLE_TYPE.TIBETAN;
+        case 'trad-chinese-formal':
+            return LIST_STYLE_TYPE.TRAD_CHINESE_FORMAL;
+        case 'trad-chinese-informal':
+            return LIST_STYLE_TYPE.TRAD_CHINESE_INFORMAL;
+        case 'upper-armenian':
+            return LIST_STYLE_TYPE.UPPER_ARMENIAN;
+        case 'disclosure-open':
+            return LIST_STYLE_TYPE.DISCLOSURE_OPEN;
+        case 'disclosure-closed':
+            return LIST_STYLE_TYPE.DISCLOSURE_CLOSED;
+        case 'none':
+        default:
+            return LIST_STYLE_TYPE.NONE;
+    }
+};
+
+var parseListStyle = exports.parseListStyle = function parseListStyle(style) {
+    var listStyleImage = (0, _background.parseBackgroundImage)(style.getPropertyValue('list-style-image'));
+    return {
+        listStyleType: parseListStyleType(style.getPropertyValue('list-style-type')),
+        listStyleImage: listStyleImage.length ? listStyleImage[0] : null,
+        listStylePosition: parseListStylePosition(style.getPropertyValue('list-style-position'))
+    };
+};
+
+var parseListStylePosition = function parseListStylePosition(position) {
+    switch (position) {
+        case 'inside':
+            return LIST_STYLE_POSITION.INSIDE;
+        case 'outside':
+        default:
+            return LIST_STYLE_POSITION.OUTSIDE;
+    }
+};
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _textTransform = __webpack_require__(18);
+
+var _TextBounds = __webpack_require__(20);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var TextContainer = function () {
+    function TextContainer(text, parent, bounds) {
+        _classCallCheck(this, TextContainer);
+
+        this.text = text;
+        this.parent = parent;
+        this.bounds = bounds;
+    }
+
+    _createClass(TextContainer, null, [{
+        key: 'fromTextNode',
+        value: function fromTextNode(node, parent) {
+            var text = transform(node.data, parent.style.textTransform);
+            return new TextContainer(text, parent, (0, _TextBounds.parseTextBounds)(text, parent, node));
+        }
+    }]);
+
+    return TextContainer;
+}();
+
+exports.default = TextContainer;
+
+
+var CAPITALIZE = /(^|\s|:|-|\(|\))([a-z])/g;
+
+var transform = function transform(text, _transform) {
+    switch (_transform) {
+        case _textTransform.TEXT_TRANSFORM.LOWERCASE:
+            return text.toLowerCase();
+        case _textTransform.TEXT_TRANSFORM.CAPITALIZE:
+            return text.replace(CAPITALIZE, capitalize);
+        case _textTransform.TEXT_TRANSFORM.UPPERCASE:
+            return text.toUpperCase();
+        default:
+            return text;
+    }
+};
+
+function capitalize(m, p1, p2) {
+    if (m.length > 0) {
+        return p1 + p2.toUpperCase();
+    }
+
+    return m;
+}
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _ForeignObjectRenderer = __webpack_require__(21);
 
 var testRangeBounds = function testRangeBounds(document) {
     var TEST_HEIGHT = 123;
@@ -1464,7 +1760,7 @@ var FEATURES = {
 exports.default = FEATURES;
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1551,7 +1847,7 @@ var parseTextDecoration = exports.parseTextDecoration = function parseTextDecora
 };
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1606,7 +1902,7 @@ var parseBorder = exports.parseBorder = function parseBorder(style) {
 };
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1615,63 +1911,321 @@ var parseBorder = exports.parseBorder = function parseBorder(style) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.createCounterText = exports.inlineListItemElement = exports.getListOwner = undefined;
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _Util = __webpack_require__(3);
 
-var _textTransform = __webpack_require__(16);
+var _NodeContainer = __webpack_require__(4);
 
-var _TextBounds = __webpack_require__(18);
+var _NodeContainer2 = _interopRequireDefault(_NodeContainer);
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _TextContainer = __webpack_require__(9);
 
-var TextContainer = function () {
-    function TextContainer(text, parent, bounds) {
-        _classCallCheck(this, TextContainer);
+var _TextContainer2 = _interopRequireDefault(_TextContainer);
 
-        this.text = text;
-        this.parent = parent;
-        this.bounds = bounds;
+var _listStyle = __webpack_require__(8);
+
+var _Unicode = __webpack_require__(45);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// Margin between the enumeration and the list item content
+var MARGIN_RIGHT = 7;
+
+var ancestorTypes = ['OL', 'UL', 'MENU'];
+
+var getListOwner = exports.getListOwner = function getListOwner(container) {
+    var parent = container.parent;
+    if (!parent) {
+        return null;
     }
 
-    _createClass(TextContainer, null, [{
-        key: 'fromTextNode',
-        value: function fromTextNode(node, parent) {
-            var text = transform(node.data, parent.style.textTransform);
-            return new TextContainer(text, parent, (0, _TextBounds.parseTextBounds)(text, parent, node));
+    do {
+        var isAncestor = ancestorTypes.indexOf(parent.tagName) !== -1;
+        if (isAncestor) {
+            return parent;
         }
-    }]);
+        parent = parent.parent;
+    } while (parent);
 
-    return TextContainer;
-}();
+    return container.parent;
+};
 
-exports.default = TextContainer;
+var inlineListItemElement = exports.inlineListItemElement = function inlineListItemElement(node, container, resourceLoader) {
+    var listStyle = container.style.listStyle;
 
+    if (!listStyle) {
+        return;
+    }
 
-var CAPITALIZE = /(^|\s|:|-|\(|\))([a-z])/g;
+    var style = node.ownerDocument.defaultView.getComputedStyle(node, null);
+    var wrapper = node.ownerDocument.createElement('html2canvaswrapper');
+    (0, _Util.copyCSSStyles)(style, wrapper);
 
-var transform = function transform(text, _transform) {
-    switch (_transform) {
-        case _textTransform.TEXT_TRANSFORM.LOWERCASE:
-            return text.toLowerCase();
-        case _textTransform.TEXT_TRANSFORM.CAPITALIZE:
-            return text.replace(CAPITALIZE, capitalize);
-        case _textTransform.TEXT_TRANSFORM.UPPERCASE:
-            return text.toUpperCase();
-        default:
-            return text;
+    wrapper.style.position = 'absolute';
+    wrapper.style.bottom = 'auto';
+    wrapper.style.display = 'block';
+    wrapper.style.letterSpacing = 'normal';
+
+    switch (listStyle.listStylePosition) {
+        case _listStyle.LIST_STYLE_POSITION.OUTSIDE:
+            wrapper.style.left = 'auto';
+            wrapper.style.right = node.ownerDocument.defaultView.innerWidth - container.bounds.left - container.style.margin[1].getAbsoluteValue(container.bounds.width) + MARGIN_RIGHT + 'px';
+            wrapper.style.textAlign = 'right';
+            break;
+        case _listStyle.LIST_STYLE_POSITION.INSIDE:
+            wrapper.style.left = container.bounds.left - container.style.margin[3].getAbsoluteValue(container.bounds.width) + 'px';
+            wrapper.style.right = 'auto';
+            wrapper.style.textAlign = 'left';
+            break;
+    }
+
+    var text = void 0;
+    var MARGIN_TOP = container.style.margin[0].getAbsoluteValue(container.bounds.width);
+    var styleImage = listStyle.listStyleImage;
+    if (styleImage) {
+        if (styleImage.method === 'url') {
+            var image = node.ownerDocument.createElement('img');
+            image.src = styleImage.args[0];
+            wrapper.style.top = container.bounds.top - MARGIN_TOP + 'px';
+            wrapper.style.width = 'auto';
+            wrapper.style.height = 'auto';
+            wrapper.appendChild(image);
+        } else {
+            var size = parseFloat(container.style.font.fontSize) * 0.5;
+            wrapper.style.top = container.bounds.top - MARGIN_TOP + container.bounds.height - 1.5 * size + 'px';
+            wrapper.style.width = size + 'px';
+            wrapper.style.height = size + 'px';
+            wrapper.style.backgroundImage = style.listStyleImage;
+        }
+    } else if (typeof container.listIndex === 'number') {
+        text = node.ownerDocument.createTextNode(createCounterText(container.listIndex, listStyle.listStyleType, true));
+        wrapper.appendChild(text);
+        wrapper.style.top = container.bounds.top - MARGIN_TOP + 'px';
+    }
+
+    // $FlowFixMe
+    var body = node.ownerDocument.body;
+    body.appendChild(wrapper);
+
+    if (text) {
+        container.childNodes.push(_TextContainer2.default.fromTextNode(text, container));
+        body.removeChild(wrapper);
+    } else {
+        // $FlowFixMe
+        container.childNodes.push(new _NodeContainer2.default(wrapper, container, resourceLoader, 0));
     }
 };
 
-function capitalize(m, p1, p2) {
-    if (m.length > 0) {
-        return p1 + p2.toUpperCase();
+var ROMAN_UPPER = {
+    integers: [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1],
+    values: ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I']
+};
+
+var ARMENIAN = {
+    integers: [9000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1000, 900, 800, 700, 600, 500, 400, 300, 200, 100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    values: ['Ք', 'Փ', 'Ւ', 'Ց', 'Ր', 'Տ', 'Վ', 'Ս', 'Ռ', 'Ջ', 'Պ', 'Չ', 'Ո', 'Շ', 'Ն', 'Յ', 'Մ', 'Ճ', 'Ղ', 'Ձ', 'Հ', 'Կ', 'Ծ', 'Խ', 'Լ', 'Ի', 'Ժ', 'Թ', 'Ը', 'Է', 'Զ', 'Ե', 'Դ', 'Գ', 'Բ', 'Ա']
+};
+
+var HEBREW = {
+    integers: [10000, 9000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1000, 400, 300, 200, 100, 90, 80, 70, 60, 50, 40, 30, 20, 19, 18, 17, 16, 15, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    values: ['י׳', 'ט׳', 'ח׳', 'ז׳', 'ו׳', 'ה׳', 'ד׳', 'ג׳', 'ב׳', 'א׳', 'ת', 'ש', 'ר', 'ק', 'צ', 'פ', 'ע', 'ס', 'נ', 'מ', 'ל', 'כ', 'יט', 'יח', 'יז', 'טז', 'טו', 'י', 'ט', 'ח', 'ז', 'ו', 'ה', 'ד', 'ג', 'ב', 'א']
+};
+
+var GEORGIAN = {
+    integers: [10000, 9000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1000, 900, 800, 700, 600, 500, 400, 300, 200, 100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    values: ['ჵ', 'ჰ', 'ჯ', 'ჴ', 'ხ', 'ჭ', 'წ', 'ძ', 'ც', 'ჩ', 'შ', 'ყ', 'ღ', 'ქ', 'ფ', 'ჳ', 'ტ', 'ს', 'რ', 'ჟ', 'პ', 'ო', 'ჲ', 'ნ', 'მ', 'ლ', 'კ', 'ი', 'თ', 'ჱ', 'ზ', 'ვ', 'ე', 'დ', 'გ', 'ბ', 'ა']
+};
+
+var createAdditiveCounter = function createAdditiveCounter(value, min, max, symbols, fallback, suffix) {
+    if (value < min || value > max) {
+        return createCounterText(value, fallback, suffix.length > 0);
     }
 
-    return m;
-}
+    return symbols.integers.reduce(function (string, integer, index) {
+        while (value >= integer) {
+            value -= integer;
+            string += symbols.values[index];
+        }
+        return string;
+    }, '') + suffix;
+};
+
+var createCounterStyleWithSymbolResolver = function createCounterStyleWithSymbolResolver(value, codePointRangeLength, isNumeric, resolver) {
+    var string = '';
+
+    do {
+        if (!isNumeric) {
+            value--;
+        }
+        string = resolver(value) + string;
+        value /= codePointRangeLength;
+    } while (value * codePointRangeLength >= codePointRangeLength);
+
+    return string;
+};
+
+var createCounterStyleFromRange = function createCounterStyleFromRange(value, codePointRangeStart, codePointRangeEnd, isNumeric, suffix) {
+    var codePointRangeLength = codePointRangeEnd - codePointRangeStart + 1;
+
+    return (value < 0 ? '-' : '') + (createCounterStyleWithSymbolResolver(Math.abs(value), codePointRangeLength, isNumeric, function (codePoint) {
+        return (0, _Unicode.fromCodePoint)(Math.floor(codePoint % codePointRangeLength) + codePointRangeStart);
+    }) + suffix);
+};
+
+var createCounterStyleFromSymbols = function createCounterStyleFromSymbols(value, symbols) {
+    var suffix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '. ';
+
+    var codePointRangeLength = symbols.length;
+    return createCounterStyleWithSymbolResolver(Math.abs(value), codePointRangeLength, false, function (codePoint) {
+        return symbols[Math.floor(codePoint % codePointRangeLength)];
+    }) + suffix;
+};
+
+var CJK_ZEROS = 1 << 0;
+var CJK_TEN_COEFFICIENTS = 1 << 1;
+var CJK_TEN_HIGH_COEFFICIENTS = 1 << 2;
+var CJK_HUNDRED_COEFFICIENTS = 1 << 3;
+
+var createCJKCounter = function createCJKCounter(value, numbers, multipliers, negativeSign, suffix, flags) {
+    if (value < -9999 || value > 9999) {
+        return createCounterText(value, _listStyle.LIST_STYLE_TYPE.CJK_DECIMAL, suffix.length > 0);
+    }
+    var tmp = Math.abs(value);
+    var string = suffix;
+
+    if (tmp === 0) {
+        return numbers[0] + string;
+    }
+
+    for (var digit = 0; tmp > 0 && digit <= 4; digit++) {
+        var coefficient = tmp % 10;
+
+        if (coefficient === 0 && (0, _Util.contains)(flags, CJK_ZEROS) && string !== '') {
+            string = numbers[coefficient] + string;
+        } else if (coefficient > 1 || coefficient === 1 && digit === 0 || coefficient === 1 && digit === 1 && (0, _Util.contains)(flags, CJK_TEN_COEFFICIENTS) || coefficient === 1 && digit === 1 && (0, _Util.contains)(flags, CJK_TEN_HIGH_COEFFICIENTS) && value > 100 || coefficient === 1 && digit > 1 && (0, _Util.contains)(flags, CJK_HUNDRED_COEFFICIENTS)) {
+            string = numbers[coefficient] + (digit > 0 ? multipliers[digit - 1] : '') + string;
+        } else if (coefficient === 1 && digit > 0) {
+            string = multipliers[digit - 1] + string;
+        }
+        tmp = Math.floor(tmp / 10);
+    }
+
+    return (value < 0 ? negativeSign : '') + string;
+};
+
+var CHINESE_INFORMAL_MULTIPLIERS = '十百千萬';
+var CHINESE_FORMAL_MULTIPLIERS = '拾佰仟萬';
+var JAPANESE_NEGATIVE = 'マイナス';
+var KOREAN_NEGATIVE = '마이너스 ';
+
+var createCounterText = exports.createCounterText = function createCounterText(value, type, appendSuffix) {
+    var defaultSuffix = appendSuffix ? '. ' : '';
+    var cjkSuffix = appendSuffix ? '、' : '';
+    var koreanSuffix = appendSuffix ? ', ' : '';
+    switch (type) {
+        case _listStyle.LIST_STYLE_TYPE.DISC:
+            return '•';
+        case _listStyle.LIST_STYLE_TYPE.CIRCLE:
+            return '◦';
+        case _listStyle.LIST_STYLE_TYPE.SQUARE:
+            return '◾';
+        case _listStyle.LIST_STYLE_TYPE.DECIMAL_LEADING_ZERO:
+            var string = createCounterStyleFromRange(value, 48, 57, true, defaultSuffix);
+            return string.length < 4 ? '0' + string : string;
+        case _listStyle.LIST_STYLE_TYPE.CJK_DECIMAL:
+            return createCounterStyleFromSymbols(value, '〇一二三四五六七八九', cjkSuffix);
+        case _listStyle.LIST_STYLE_TYPE.LOWER_ROMAN:
+            return createAdditiveCounter(value, 1, 3999, ROMAN_UPPER, _listStyle.LIST_STYLE_TYPE.DECIMAL, defaultSuffix).toLowerCase();
+        case _listStyle.LIST_STYLE_TYPE.UPPER_ROMAN:
+            return createAdditiveCounter(value, 1, 3999, ROMAN_UPPER, _listStyle.LIST_STYLE_TYPE.DECIMAL, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.LOWER_GREEK:
+            return createCounterStyleFromRange(value, 945, 969, false, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.LOWER_ALPHA:
+            return createCounterStyleFromRange(value, 97, 122, false, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.UPPER_ALPHA:
+            return createCounterStyleFromRange(value, 65, 90, false, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.ARABIC_INDIC:
+            return createCounterStyleFromRange(value, 1632, 1641, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.ARMENIAN:
+        case _listStyle.LIST_STYLE_TYPE.UPPER_ARMENIAN:
+            return createAdditiveCounter(value, 1, 9999, ARMENIAN, _listStyle.LIST_STYLE_TYPE.DECIMAL, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.LOWER_ARMENIAN:
+            return createAdditiveCounter(value, 1, 9999, ARMENIAN, _listStyle.LIST_STYLE_TYPE.DECIMAL, defaultSuffix).toLowerCase();
+        case _listStyle.LIST_STYLE_TYPE.BENGALI:
+            return createCounterStyleFromRange(value, 2534, 2543, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.CAMBODIAN:
+        case _listStyle.LIST_STYLE_TYPE.KHMER:
+            return createCounterStyleFromRange(value, 6112, 6121, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.CJK_EARTHLY_BRANCH:
+            return createCounterStyleFromSymbols(value, '子丑寅卯辰巳午未申酉戌亥', cjkSuffix);
+        case _listStyle.LIST_STYLE_TYPE.CJK_HEAVENLY_STEM:
+            return createCounterStyleFromSymbols(value, '甲乙丙丁戊己庚辛壬癸', cjkSuffix);
+        case _listStyle.LIST_STYLE_TYPE.CJK_IDEOGRAPHIC:
+        case _listStyle.LIST_STYLE_TYPE.TRAD_CHINESE_INFORMAL:
+            return createCJKCounter(value, '零一二三四五六七八九', CHINESE_INFORMAL_MULTIPLIERS, '負', cjkSuffix, CJK_TEN_COEFFICIENTS | CJK_TEN_HIGH_COEFFICIENTS | CJK_HUNDRED_COEFFICIENTS);
+        case _listStyle.LIST_STYLE_TYPE.TRAD_CHINESE_FORMAL:
+            return createCJKCounter(value, '零壹貳參肆伍陸柒捌玖', CHINESE_FORMAL_MULTIPLIERS, '負', cjkSuffix, CJK_ZEROS | CJK_TEN_COEFFICIENTS | CJK_TEN_HIGH_COEFFICIENTS | CJK_HUNDRED_COEFFICIENTS);
+        case _listStyle.LIST_STYLE_TYPE.SIMP_CHINESE_INFORMAL:
+            return createCJKCounter(value, '零一二三四五六七八九', CHINESE_INFORMAL_MULTIPLIERS, '负', cjkSuffix, CJK_TEN_COEFFICIENTS | CJK_TEN_HIGH_COEFFICIENTS | CJK_HUNDRED_COEFFICIENTS);
+        case _listStyle.LIST_STYLE_TYPE.SIMP_CHINESE_FORMAL:
+            return createCJKCounter(value, '零壹贰叁肆伍陆柒捌玖', CHINESE_FORMAL_MULTIPLIERS, '负', cjkSuffix, CJK_ZEROS | CJK_TEN_COEFFICIENTS | CJK_TEN_HIGH_COEFFICIENTS | CJK_HUNDRED_COEFFICIENTS);
+        case _listStyle.LIST_STYLE_TYPE.JAPANESE_INFORMAL:
+            return createCJKCounter(value, '〇一二三四五六七八九', '十百千万', JAPANESE_NEGATIVE, cjkSuffix, 0);
+        case _listStyle.LIST_STYLE_TYPE.JAPANESE_FORMAL:
+            return createCJKCounter(value, '零壱弐参四伍六七八九', '拾百千万', JAPANESE_NEGATIVE, cjkSuffix, CJK_ZEROS | CJK_TEN_COEFFICIENTS | CJK_TEN_HIGH_COEFFICIENTS);
+        case _listStyle.LIST_STYLE_TYPE.KOREAN_HANGUL_FORMAL:
+            return createCJKCounter(value, '영일이삼사오육칠팔구', '십백천만', KOREAN_NEGATIVE, koreanSuffix, CJK_ZEROS | CJK_TEN_COEFFICIENTS | CJK_TEN_HIGH_COEFFICIENTS);
+        case _listStyle.LIST_STYLE_TYPE.KOREAN_HANJA_INFORMAL:
+            return createCJKCounter(value, '零一二三四五六七八九', '十百千萬', KOREAN_NEGATIVE, koreanSuffix, 0);
+        case _listStyle.LIST_STYLE_TYPE.KOREAN_HANJA_FORMAL:
+            return createCJKCounter(value, '零壹貳參四五六七八九', '拾百千', KOREAN_NEGATIVE, koreanSuffix, CJK_ZEROS | CJK_TEN_COEFFICIENTS | CJK_TEN_HIGH_COEFFICIENTS);
+        case _listStyle.LIST_STYLE_TYPE.DEVANAGARI:
+            return createCounterStyleFromRange(value, 0x966, 0x96f, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.GEORGIAN:
+            return createAdditiveCounter(value, 1, 19999, GEORGIAN, _listStyle.LIST_STYLE_TYPE.DECIMAL, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.GUJARATI:
+            return createCounterStyleFromRange(value, 0xae6, 0xaef, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.GURMUKHI:
+            return createCounterStyleFromRange(value, 0xa66, 0xa6f, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.HEBREW:
+            return createAdditiveCounter(value, 1, 10999, HEBREW, _listStyle.LIST_STYLE_TYPE.DECIMAL, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.HIRAGANA:
+            return createCounterStyleFromSymbols(value, 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわゐゑをん');
+        case _listStyle.LIST_STYLE_TYPE.HIRAGANA_IROHA:
+            return createCounterStyleFromSymbols(value, 'いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせす');
+        case _listStyle.LIST_STYLE_TYPE.KANNADA:
+            return createCounterStyleFromRange(value, 0xce6, 0xcef, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.KATAKANA:
+            return createCounterStyleFromSymbols(value, 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲン', cjkSuffix);
+        case _listStyle.LIST_STYLE_TYPE.KATAKANA_IROHA:
+            return createCounterStyleFromSymbols(value, 'イロハニホヘトチリヌルヲワカヨタレソツネナラムウヰノオクヤマケフコエテアサキユメミシヱヒモセス', cjkSuffix);
+        case _listStyle.LIST_STYLE_TYPE.LAO:
+            return createCounterStyleFromRange(value, 0xed0, 0xed9, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.MONGOLIAN:
+            return createCounterStyleFromRange(value, 0x1810, 0x1819, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.MYANMAR:
+            return createCounterStyleFromRange(value, 0x1040, 0x1049, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.ORIYA:
+            return createCounterStyleFromRange(value, 0xb66, 0xb6f, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.PERSIAN:
+            return createCounterStyleFromRange(value, 0x6f0, 0x6f9, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.TAMIL:
+            return createCounterStyleFromRange(value, 0xbe6, 0xbef, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.TELUGU:
+            return createCounterStyleFromRange(value, 0xc66, 0xc6f, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.THAI:
+            return createCounterStyleFromRange(value, 0xe50, 0xe59, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.TIBETAN:
+            return createCounterStyleFromRange(value, 0xf20, 0xf29, true, defaultSuffix);
+        case _listStyle.LIST_STYLE_TYPE.DECIMAL:
+        default:
+            return createCounterStyleFromRange(value, 48, 57, true, defaultSuffix);
+    }
+};
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1683,9 +2237,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Path = __webpack_require__(4);
+var _Path = __webpack_require__(6);
 
-var _textDecoration = __webpack_require__(9);
+var _textDecoration = __webpack_require__(11);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1875,7 +2429,7 @@ var CanvasRenderer = function () {
                                 var _options$fontMetrics$ = _this4.options.fontMetrics.getMetrics(font),
                                     baseline = _options$fontMetrics$.baseline;
 
-                                _this4.rectangle(text.bounds.left, Math.round(text.bounds.top + baseline), text.bounds.width, 1, textDecorationColor);
+                                _this4.rectangle(text.bounds.left, Math.round(text.bounds.top + text.bounds.height - baseline), text.bounds.width, 1, textDecorationColor);
                                 break;
                             case _textDecoration.TEXT_DECORATION_LINE.OVERLINE:
                                 _this4.rectangle(text.bounds.left, Math.round(text.bounds.top), text.bounds.width, 1, textDecorationColor);
@@ -1931,7 +2485,7 @@ var CanvasRenderer = function () {
 exports.default = CanvasRenderer;
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1995,7 +2549,7 @@ var Logger = function () {
 exports.default = Logger;
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2028,7 +2582,7 @@ var parsePadding = exports.parsePadding = function parsePadding(style) {
 };
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2061,7 +2615,7 @@ var parsePosition = exports.parsePosition = function parsePosition(position) {
 };
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2091,7 +2645,7 @@ var parseTextTransform = exports.parseTextTransform = function parseTextTransfor
 };
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2102,15 +2656,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.reformatInputBounds = exports.inlineSelectElement = exports.inlineTextAreaElement = exports.inlineInputElement = exports.getInputBorderRadius = exports.INPUT_BACKGROUND = exports.INPUT_BORDERS = exports.INPUT_COLOR = undefined;
 
-var _TextContainer = __webpack_require__(11);
+var _TextContainer = __webpack_require__(9);
 
 var _TextContainer2 = _interopRequireDefault(_TextContainer);
 
-var _background = __webpack_require__(6);
+var _background = __webpack_require__(5);
 
-var _border = __webpack_require__(10);
+var _border = __webpack_require__(12);
 
-var _Circle = __webpack_require__(41);
+var _Circle = __webpack_require__(44);
 
 var _Circle2 = _interopRequireDefault(_Circle);
 
@@ -2128,7 +2682,7 @@ var _Length2 = _interopRequireDefault(_Length);
 
 var _Bounds = __webpack_require__(1);
 
-var _TextBounds = __webpack_require__(18);
+var _TextBounds = __webpack_require__(20);
 
 var _Util = __webpack_require__(3);
 
@@ -2219,7 +2773,7 @@ var getInputValue = function getInputValue(node) {
 };
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2230,13 +2784,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.parseTextBounds = exports.TextBounds = undefined;
 
-var _punycode = __webpack_require__(38);
+var _punycode = __webpack_require__(41);
 
 var _Bounds = __webpack_require__(1);
 
-var _textDecoration = __webpack_require__(9);
+var _textDecoration = __webpack_require__(11);
 
-var _Feature = __webpack_require__(8);
+var _Feature = __webpack_require__(10);
 
 var _Feature2 = _interopRequireDefault(_Feature);
 
@@ -2348,7 +2902,7 @@ var isWordBoundary = function isWordBoundary(characterCode) {
 };
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2433,7 +2987,7 @@ var loadSerializedSVG = exports.loadSerializedSVG = function loadSerializedSVG(s
 };
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2526,7 +3080,7 @@ var FontMetrics = exports.FontMetrics = function () {
 }();
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2537,7 +3091,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Proxy = undefined;
 
-var _Feature = __webpack_require__(8);
+var _Feature = __webpack_require__(10);
 
 var _Feature2 = _interopRequireDefault(_Feature);
 
@@ -2597,7 +3151,7 @@ var Proxy = exports.Proxy = function Proxy(src, options) {
 };
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2607,15 +3161,15 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _CanvasRenderer = __webpack_require__(12);
+var _CanvasRenderer = __webpack_require__(14);
 
 var _CanvasRenderer2 = _interopRequireDefault(_CanvasRenderer);
 
-var _Logger = __webpack_require__(13);
+var _Logger = __webpack_require__(15);
 
 var _Logger2 = _interopRequireDefault(_Logger);
 
-var _Window = __webpack_require__(23);
+var _Window = __webpack_require__(25);
 
 var _Bounds = __webpack_require__(1);
 
@@ -2625,7 +3179,7 @@ var html2canvas = function html2canvas(element, conf) {
     // eslint-disable-next-line no-console
     if ((typeof console === 'undefined' ? 'undefined' : _typeof(console)) === 'object' && typeof console.log === 'function') {
         // eslint-disable-next-line no-console
-        console.log('html2canvas ' + "1.0.0-alpha.4");
+        console.log('html2canvas ' + "1.0.0-alpha.6");
     }
 
     var config = conf || {};
@@ -2663,6 +3217,7 @@ var html2canvas = function html2canvas(element, conf) {
         foreignObjectRendering: false,
         scale: defaultView.devicePixelRatio || 1,
         target: new _CanvasRenderer2.default(config.canvas),
+        useCORS: false,
         x: left,
         y: top,
         width: Math.ceil(width),
@@ -2689,7 +3244,7 @@ html2canvas.CanvasRenderer = _CanvasRenderer2.default;
 module.exports = html2canvas;
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2702,29 +3257,29 @@ exports.renderElement = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _Logger = __webpack_require__(13);
+var _Logger = __webpack_require__(15);
 
 var _Logger2 = _interopRequireDefault(_Logger);
 
-var _NodeParser = __webpack_require__(24);
+var _NodeParser = __webpack_require__(26);
 
-var _Renderer = __webpack_require__(42);
+var _Renderer = __webpack_require__(46);
 
 var _Renderer2 = _interopRequireDefault(_Renderer);
 
-var _ForeignObjectRenderer = __webpack_require__(19);
+var _ForeignObjectRenderer = __webpack_require__(21);
 
 var _ForeignObjectRenderer2 = _interopRequireDefault(_ForeignObjectRenderer);
 
-var _Feature = __webpack_require__(8);
+var _Feature = __webpack_require__(10);
 
 var _Feature2 = _interopRequireDefault(_Feature);
 
 var _Bounds = __webpack_require__(1);
 
-var _Clone = __webpack_require__(45);
+var _Clone = __webpack_require__(49);
 
-var _Font = __webpack_require__(20);
+var _Font = __webpack_require__(22);
 
 var _Color = __webpack_require__(0);
 
@@ -2786,14 +3341,6 @@ var renderElement = exports.renderElement = function renderElement(element, opti
             }
 
             return resourceLoader.ready().then(function (imageStore) {
-                if (options.removeContainer === true) {
-                    if (container.parentNode) {
-                        container.parentNode.removeChild(container);
-                    } else if (true) {
-                        logger.log('Cannot detach cloned iframe as it is not in the DOM anymore');
-                    }
-                }
-
                 var fontMetrics = new _Font.FontMetrics(clonedDocument);
                 if (true) {
                     logger.log('Starting renderer');
@@ -2818,7 +3365,16 @@ var renderElement = exports.renderElement = function renderElement(element, opti
                     }));
                 } else {
                     var renderer = new _Renderer2.default(options.target, renderOptions);
-                    return renderer.render(stack);
+                    var canvas = renderer.render(stack);
+                    if (options.removeContainer === true) {
+                        if (container.parentNode) {
+                            container.parentNode.removeChild(container);
+                        } else if (true) {
+                            logger.log('Cannot detach cloned iframe as it is not in the DOM anymore');
+                        }
+                    }
+
+                    return canvas;
                 }
             });
         });
@@ -2826,7 +3382,7 @@ var renderElement = exports.renderElement = function renderElement(element, opti
 };
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2837,19 +3393,23 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.NodeParser = undefined;
 
-var _StackingContext = __webpack_require__(25);
+var _StackingContext = __webpack_require__(27);
 
 var _StackingContext2 = _interopRequireDefault(_StackingContext);
 
-var _NodeContainer = __webpack_require__(5);
+var _NodeContainer = __webpack_require__(4);
 
 var _NodeContainer2 = _interopRequireDefault(_NodeContainer);
 
-var _TextContainer = __webpack_require__(11);
+var _TextContainer = __webpack_require__(9);
 
 var _TextContainer2 = _interopRequireDefault(_TextContainer);
 
-var _Input = __webpack_require__(17);
+var _Input = __webpack_require__(19);
+
+var _ListItem = __webpack_require__(13);
+
+var _listStyle = __webpack_require__(8);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2899,6 +3459,8 @@ var parseNodeTree = function parseNodeTree(node, parent, stack, resourceLoader, 
                     } else if (childNode.tagName === 'SELECT') {
                         // $FlowFixMe
                         (0, _Input.inlineSelectElement)(childNode, container);
+                    } else if (container.style.listStyle && container.style.listStyle.listStyleType !== _listStyle.LIST_STYLE_TYPE.NONE) {
+                        (0, _ListItem.inlineListItemElement)(childNode, container, resourceLoader);
                     }
 
                     var SHOULD_TRAVERSE_CHILDREN = childNode.tagName !== 'TEXTAREA';
@@ -2949,7 +3511,7 @@ var isBodyWithTransparentRoot = function isBodyWithTransparentRoot(container, no
 };
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2961,11 +3523,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _NodeContainer = __webpack_require__(5);
+var _NodeContainer = __webpack_require__(4);
 
 var _NodeContainer2 = _interopRequireDefault(_NodeContainer);
 
-var _position = __webpack_require__(15);
+var _position = __webpack_require__(17);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3000,7 +3562,7 @@ var StackingContext = function () {
 exports.default = StackingContext;
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3022,7 +3584,7 @@ var Size = function Size(width, height) {
 exports.default = Size;
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3034,7 +3596,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Path = __webpack_require__(4);
+var _Path = __webpack_require__(6);
 
 var _Vector = __webpack_require__(7);
 
@@ -3083,7 +3645,7 @@ var BezierCurve = function () {
 exports.default = BezierCurve;
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3118,7 +3680,7 @@ var parseBorderRadius = exports.parseBorderRadius = function parseBorderRadius(s
 };
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3234,7 +3796,7 @@ var parseDisplay = exports.parseDisplay = function parseDisplay(display) {
 };
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3266,7 +3828,7 @@ var parseCSSFloat = exports.parseCSSFloat = function parseCSSFloat(float) {
 };
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3306,7 +3868,7 @@ var parseFont = exports.parseFont = function parseFont(style) {
 };
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3324,7 +3886,33 @@ var parseLetterSpacing = exports.parseLetterSpacing = function parseLetterSpacin
 };
 
 /***/ }),
-/* 33 */
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.parseMargin = undefined;
+
+var _Length = __webpack_require__(2);
+
+var _Length2 = _interopRequireDefault(_Length);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var SIDES = ['top', 'right', 'bottom', 'left'];
+
+var parseMargin = exports.parseMargin = function parseMargin(style) {
+    return SIDES.map(function (side) {
+        return new _Length2.default(style.getPropertyValue('margin-' + side));
+    });
+};
+
+/***/ }),
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3355,7 +3943,7 @@ var parseOverflow = exports.parseOverflow = function parseOverflow(overflow) {
 };
 
 /***/ }),
-/* 34 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3456,7 +4044,7 @@ var parseTextShadow = exports.parseTextShadow = function parseTextShadow(textSha
 };
 
 /***/ }),
-/* 35 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3529,7 +4117,7 @@ var parseTransformMatrix = function parseTransformMatrix(transform) {
 };
 
 /***/ }),
-/* 36 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3557,7 +4145,7 @@ var parseVisibility = exports.parseVisibility = function parseVisibility(visibil
 };
 
 /***/ }),
-/* 37 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3575,7 +4163,7 @@ var parseZIndex = exports.parseZIndex = function parseZIndex(zIndex) {
 };
 
 /***/ }),
-/* 38 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/punycode v1.4.1 by @mathias */
@@ -4111,10 +4699,10 @@ var parseZIndex = exports.parseZIndex = function parseZIndex(zIndex) {
 
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39)(module), __webpack_require__(40)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42)(module), __webpack_require__(43)))
 
 /***/ }),
-/* 39 */
+/* 42 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -4142,7 +4730,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 40 */
+/* 43 */
 /***/ (function(module, exports) {
 
 var g;
@@ -4169,7 +4757,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 41 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4179,7 +4767,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _Path = __webpack_require__(4);
+var _Path = __webpack_require__(6);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -4206,7 +4794,47 @@ var Circle = function Circle(x, y, radius) {
 exports.default = Circle;
 
 /***/ }),
-/* 42 */
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var fromCodePoint = exports.fromCodePoint = function fromCodePoint() {
+    if (String.fromCodePoint) {
+        return String.fromCodePoint.apply(String, arguments);
+    }
+
+    var length = arguments.length;
+    if (!length) {
+        return '';
+    }
+
+    var codeUnits = [];
+
+    var index = -1;
+    var result = '';
+    while (++index < length) {
+        var codePoint = arguments.length <= index ? undefined : arguments[index];
+        if (codePoint <= 0xffff) {
+            codeUnits.push(codePoint);
+        } else {
+            codePoint -= 0x10000;
+            codeUnits.push((codePoint >> 10) + 0xd800, codePoint % 0x400 + 0xdc00);
+        }
+        if (index + 1 === length || codeUnits.length > 0x4000) {
+            result += String.fromCharCode.apply(String, codeUnits);
+            codeUnits.length = 0;
+        }
+    }
+    return result;
+};
+
+/***/ }),
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4222,17 +4850,17 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _Bounds = __webpack_require__(1);
 
-var _Font = __webpack_require__(20);
+var _Font = __webpack_require__(22);
 
-var _Gradient = __webpack_require__(43);
+var _Gradient = __webpack_require__(47);
 
-var _TextContainer = __webpack_require__(11);
+var _TextContainer = __webpack_require__(9);
 
 var _TextContainer2 = _interopRequireDefault(_TextContainer);
 
-var _background = __webpack_require__(6);
+var _background = __webpack_require__(5);
 
-var _border = __webpack_require__(10);
+var _border = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4538,7 +5166,7 @@ var sortByZIndex = function sortByZIndex(a, b) {
 };
 
 /***/ }),
-/* 43 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4551,11 +5179,11 @@ exports.transformWebkitRadialGradientArgs = exports.parseGradient = exports.Radi
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _NodeContainer = __webpack_require__(5);
+var _NodeContainer = __webpack_require__(4);
 
 var _NodeContainer2 = _interopRequireDefault(_NodeContainer);
 
-var _Angle = __webpack_require__(44);
+var _Angle = __webpack_require__(48);
 
 var _Color = __webpack_require__(0);
 
@@ -4991,7 +5619,7 @@ var transformObsoleteColorStops = function transformObsoleteColorStops(args) {
 };
 
 /***/ }),
-/* 44 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5023,7 +5651,7 @@ var parseAngle = exports.parseAngle = function parseAngle(angle) {
 };
 
 /***/ }),
-/* 45 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5040,19 +5668,21 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _Bounds = __webpack_require__(1);
 
-var _Proxy = __webpack_require__(21);
+var _Proxy = __webpack_require__(23);
 
-var _ResourceLoader = __webpack_require__(46);
+var _ResourceLoader = __webpack_require__(50);
 
 var _ResourceLoader2 = _interopRequireDefault(_ResourceLoader);
 
 var _Util = __webpack_require__(3);
 
-var _background = __webpack_require__(6);
+var _background = __webpack_require__(5);
 
-var _CanvasRenderer = __webpack_require__(12);
+var _CanvasRenderer = __webpack_require__(14);
 
 var _CanvasRenderer2 = _interopRequireDefault(_CanvasRenderer);
+
+var _PseudoNodeContent = __webpack_require__(51);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5072,6 +5702,10 @@ var DocumentCloner = exports.DocumentCloner = function () {
         this.options = options;
         this.renderer = renderer;
         this.resourceLoader = new _ResourceLoader2.default(options, logger, window);
+        this.pseudoContentData = {
+            counters: {},
+            quoteDepth: 0
+        };
         // $FlowFixMe
         this.documentElement = this.cloneNode(element.ownerDocument.documentElement);
     }
@@ -5204,6 +5838,7 @@ var DocumentCloner = exports.DocumentCloner = function () {
                         removeContainer: _this3.options.removeContainer,
                         scale: _this3.options.scale,
                         foreignObjectRendering: _this3.options.foreignObjectRendering,
+                        useCORS: _this3.options.useCORS,
                         target: new _CanvasRenderer2.default(),
                         width: width,
                         height: height,
@@ -5238,6 +5873,9 @@ var DocumentCloner = exports.DocumentCloner = function () {
             var clone = node.nodeType === Node.TEXT_NODE ? document.createTextNode(node.nodeValue) : this.createElementClone(node);
 
             var window = node.ownerDocument.defaultView;
+            var style = node instanceof window.HTMLElement ? window.getComputedStyle(node) : null;
+            var styleBefore = node instanceof window.HTMLElement ? window.getComputedStyle(node, ':before') : null;
+            var styleAfter = node instanceof window.HTMLElement ? window.getComputedStyle(node, ':after') : null;
 
             if (this.referenceElement === node && clone instanceof window.HTMLElement) {
                 this.clonedReferenceElement = clone;
@@ -5246,6 +5884,9 @@ var DocumentCloner = exports.DocumentCloner = function () {
             if (clone instanceof window.HTMLBodyElement) {
                 createPseudoHideStyles(clone);
             }
+
+            var counters = (0, _PseudoNodeContent.parseCounterReset)(style, this.pseudoContentData);
+            var contentBefore = (0, _PseudoNodeContent.resolvePseudoContent)(node, styleBefore, this.pseudoContentData);
 
             for (var child = node.firstChild; child; child = child.nextSibling) {
                 if (child.nodeType !== Node.ELEMENT_NODE ||
@@ -5256,11 +5897,19 @@ var DocumentCloner = exports.DocumentCloner = function () {
                     }
                 }
             }
+
+            var contentAfter = (0, _PseudoNodeContent.resolvePseudoContent)(node, styleAfter, this.pseudoContentData);
+            (0, _PseudoNodeContent.popCounters)(counters, this.pseudoContentData);
+
             if (node instanceof window.HTMLElement && clone instanceof window.HTMLElement) {
-                this.inlineAllImages(inlinePseudoElement(node, clone, PSEUDO_BEFORE));
-                this.inlineAllImages(inlinePseudoElement(node, clone, PSEUDO_AFTER));
-                if (this.copyStyles && !(node instanceof HTMLIFrameElement)) {
-                    (0, _Util.copyCSSStyles)(node.ownerDocument.defaultView.getComputedStyle(node), clone);
+                if (styleBefore) {
+                    this.inlineAllImages(inlinePseudoElement(node, clone, styleBefore, contentBefore, PSEUDO_BEFORE));
+                }
+                if (styleAfter) {
+                    this.inlineAllImages(inlinePseudoElement(node, clone, styleAfter, contentAfter, PSEUDO_AFTER));
+                }
+                if (style && this.copyStyles && !(node instanceof HTMLIFrameElement)) {
+                    (0, _Util.copyCSSStyles)(style, clone);
                 }
                 this.inlineAllImages(clone);
                 if (node.scrollTop !== 0 || node.scrollLeft !== 0) {
@@ -5362,23 +6011,31 @@ var cloneCanvasContents = function cloneCanvasContents(canvas, clonedCanvas) {
     } catch (e) {}
 };
 
-var inlinePseudoElement = function inlinePseudoElement(node, clone, pseudoElt) {
-    var style = node.ownerDocument.defaultView.getComputedStyle(node, pseudoElt);
+var inlinePseudoElement = function inlinePseudoElement(node, clone, style, contentItems, pseudoElt) {
     if (!style || !style.content || style.content === 'none' || style.content === '-moz-alt-content' || style.display === 'none') {
         return;
     }
 
-    var content = stripQuotes(style.content);
-    var image = content.match(URL_REGEXP);
-    var anonymousReplacedElement = clone.ownerDocument.createElement(image ? 'img' : 'html2canvaspseudoelement');
-    if (image) {
-        // $FlowFixMe
-        anonymousReplacedElement.src = stripQuotes(image[1]);
-    } else {
-        anonymousReplacedElement.textContent = content;
-    }
-
+    var anonymousReplacedElement = clone.ownerDocument.createElement('html2canvaspseudoelement');
     (0, _Util.copyCSSStyles)(style, anonymousReplacedElement);
+
+    if (contentItems) {
+        var len = contentItems.length;
+        for (var i = 0; i < len; i++) {
+            var item = contentItems[i];
+            switch (item.type) {
+                case _PseudoNodeContent.PSEUDO_CONTENT_ITEM_TYPE.IMAGE:
+                    var img = clone.ownerDocument.createElement('img');
+                    img.src = (0, _background.parseBackgroundImage)('url(' + item.value + ')')[0].args[0];
+                    img.style.opacity = '1';
+                    anonymousReplacedElement.appendChild(img);
+                    break;
+                case _PseudoNodeContent.PSEUDO_CONTENT_ITEM_TYPE.TEXT:
+                    anonymousReplacedElement.appendChild(clone.ownerDocument.createTextNode(item.value));
+                    break;
+            }
+        }
+    }
 
     anonymousReplacedElement.className = PSEUDO_HIDE_ELEMENT_CLASS_BEFORE + ' ' + PSEUDO_HIDE_ELEMENT_CLASS_AFTER;
     clone.className += pseudoElt === PSEUDO_BEFORE ? ' ' + PSEUDO_HIDE_ELEMENT_CLASS_BEFORE : ' ' + PSEUDO_HIDE_ELEMENT_CLASS_AFTER;
@@ -5389,11 +6046,6 @@ var inlinePseudoElement = function inlinePseudoElement(node, clone, pseudoElt) {
     }
 
     return anonymousReplacedElement;
-};
-
-var stripQuotes = function stripQuotes(content) {
-    var first = content.substr(0, 1);
-    return first === content.substr(content.length - 1) && first.match(/['"]/) ? content.substr(1, content.length - 2) : content;
 };
 
 var URL_REGEXP = /^url\((.+)\)$/i;
@@ -5533,7 +6185,7 @@ var cloneWindow = exports.cloneWindow = function cloneWindow(ownerDocument, boun
 };
 
 /***/ }),
-/* 46 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5546,11 +6198,11 @@ exports.ResourceStore = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Feature = __webpack_require__(8);
+var _Feature = __webpack_require__(10);
 
 var _Feature2 = _interopRequireDefault(_Feature);
 
-var _Proxy = __webpack_require__(21);
+var _Proxy = __webpack_require__(23);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5800,6 +6452,336 @@ var _loadImage = function _loadImage(src, timeout) {
             }, timeout);
         }
     });
+};
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.parseContent = exports.resolvePseudoContent = exports.popCounters = exports.parseCounterReset = exports.TOKEN_TYPE = exports.PSEUDO_CONTENT_ITEM_TYPE = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _ListItem = __webpack_require__(13);
+
+var _listStyle = __webpack_require__(8);
+
+var PSEUDO_CONTENT_ITEM_TYPE = exports.PSEUDO_CONTENT_ITEM_TYPE = {
+    TEXT: 0,
+    IMAGE: 1
+};
+
+var TOKEN_TYPE = exports.TOKEN_TYPE = {
+    STRING: 0,
+    ATTRIBUTE: 1,
+    URL: 2,
+    COUNTER: 3,
+    COUNTERS: 4,
+    OPENQUOTE: 5,
+    CLOSEQUOTE: 6
+};
+
+var parseCounterReset = exports.parseCounterReset = function parseCounterReset(style, data) {
+    if (!style || !style.counterReset || style.counterReset === 'none') {
+        return [];
+    }
+
+    var counterNames = [];
+    var counterResets = style.counterReset.split(/\s*,\s*/);
+    var lenCounterResets = counterResets.length;
+
+    for (var i = 0; i < lenCounterResets; i++) {
+        var _counterResets$i$spli = counterResets[i].split(/\s+/),
+            _counterResets$i$spli2 = _slicedToArray(_counterResets$i$spli, 2),
+            counterName = _counterResets$i$spli2[0],
+            initialValue = _counterResets$i$spli2[1];
+
+        counterNames.push(counterName);
+        var counter = data.counters[counterName];
+        if (!counter) {
+            counter = data.counters[counterName] = [];
+        }
+        counter.push(parseInt(initialValue || 0, 10));
+    }
+
+    return counterNames;
+};
+
+var popCounters = exports.popCounters = function popCounters(counterNames, data) {
+    var lenCounters = counterNames.length;
+    for (var i = 0; i < lenCounters; i++) {
+        data.counters[counterNames[i]].pop();
+    }
+};
+
+var resolvePseudoContent = exports.resolvePseudoContent = function resolvePseudoContent(node, style, data) {
+    if (!style || !style.content || style.content === 'none' || style.content === '-moz-alt-content' || style.display === 'none') {
+        return null;
+    }
+
+    var tokens = parseContent(style.content);
+
+    var len = tokens.length;
+    var contentItems = [];
+    var s = '';
+
+    // increment the counter (if there is a "counter-increment" declaration)
+    var counterIncrement = style.counterIncrement;
+    if (counterIncrement && counterIncrement !== 'none') {
+        var _counterIncrement$spl = counterIncrement.split(/\s+/),
+            _counterIncrement$spl2 = _slicedToArray(_counterIncrement$spl, 2),
+            counterName = _counterIncrement$spl2[0],
+            incrementValue = _counterIncrement$spl2[1];
+
+        var counter = data.counters[counterName];
+        if (counter) {
+            counter[counter.length - 1] += incrementValue === undefined ? 1 : parseInt(incrementValue, 10);
+        }
+    }
+
+    // build the content string
+    for (var i = 0; i < len; i++) {
+        var token = tokens[i];
+        switch (token.type) {
+            case TOKEN_TYPE.STRING:
+                s += token.value || '';
+                break;
+
+            case TOKEN_TYPE.ATTRIBUTE:
+                if (node instanceof HTMLElement && token.value) {
+                    s += node.getAttribute(token.value) || '';
+                }
+                break;
+
+            case TOKEN_TYPE.COUNTER:
+                var _counter = data.counters[token.name || ''];
+                if (_counter) {
+                    s += formatCounterValue([_counter[_counter.length - 1]], '', token.format);
+                }
+                break;
+
+            case TOKEN_TYPE.COUNTERS:
+                var _counters = data.counters[token.name || ''];
+                if (_counters) {
+                    s += formatCounterValue(_counters, token.glue, token.format);
+                }
+                break;
+
+            case TOKEN_TYPE.OPENQUOTE:
+                s += getQuote(style, true, data.quoteDepth);
+                data.quoteDepth++;
+                break;
+
+            case TOKEN_TYPE.CLOSEQUOTE:
+                data.quoteDepth--;
+                s += getQuote(style, false, data.quoteDepth);
+                break;
+
+            case TOKEN_TYPE.URL:
+                if (s) {
+                    contentItems.push({ type: PSEUDO_CONTENT_ITEM_TYPE.TEXT, value: s });
+                    s = '';
+                }
+                contentItems.push({ type: PSEUDO_CONTENT_ITEM_TYPE.IMAGE, value: token.value || '' });
+                break;
+        }
+    }
+
+    if (s) {
+        contentItems.push({ type: PSEUDO_CONTENT_ITEM_TYPE.TEXT, value: s });
+    }
+
+    return contentItems;
+};
+
+var parseContent = exports.parseContent = function parseContent(content, cache) {
+    if (cache && cache[content]) {
+        return cache[content];
+    }
+
+    var tokens = [];
+    var len = content.length;
+
+    var isString = false;
+    var isEscaped = false;
+    var isFunction = false;
+    var str = '';
+    var functionName = '';
+    var args = [];
+
+    for (var i = 0; i < len; i++) {
+        var c = content.charAt(i);
+
+        switch (c) {
+            case "'":
+            case '"':
+                if (isEscaped) {
+                    str += c;
+                } else {
+                    isString = !isString;
+                    if (!isFunction && !isString) {
+                        tokens.push({ type: TOKEN_TYPE.STRING, value: str });
+                        str = '';
+                    }
+                }
+                break;
+
+            case '\\':
+                if (isEscaped) {
+                    str += c;
+                    isEscaped = false;
+                } else {
+                    isEscaped = true;
+                }
+                break;
+
+            case '(':
+                if (isString) {
+                    str += c;
+                } else {
+                    isFunction = true;
+                    functionName = str;
+                    str = '';
+                    args = [];
+                }
+                break;
+
+            case ')':
+                if (isString) {
+                    str += c;
+                } else if (isFunction) {
+                    if (str) {
+                        args.push(str);
+                    }
+
+                    switch (functionName) {
+                        case 'attr':
+                            if (args.length > 0) {
+                                tokens.push({ type: TOKEN_TYPE.ATTRIBUTE, value: args[0] });
+                            }
+                            break;
+
+                        case 'counter':
+                            if (args.length > 0) {
+                                var counter = {
+                                    type: TOKEN_TYPE.COUNTER,
+                                    name: args[0]
+                                };
+                                if (args.length > 1) {
+                                    counter.format = args[1];
+                                }
+                                tokens.push(counter);
+                            }
+                            break;
+
+                        case 'counters':
+                            if (args.length > 0) {
+                                var _counters2 = {
+                                    type: TOKEN_TYPE.COUNTERS,
+                                    name: args[0]
+                                };
+                                if (args.length > 1) {
+                                    _counters2.glue = args[1];
+                                }
+                                if (args.length > 2) {
+                                    _counters2.format = args[2];
+                                }
+                                tokens.push(_counters2);
+                            }
+                            break;
+
+                        case 'url':
+                            if (args.length > 0) {
+                                tokens.push({ type: TOKEN_TYPE.URL, value: args[0] });
+                            }
+                            break;
+                    }
+
+                    isFunction = false;
+                    str = '';
+                }
+                break;
+
+            case ',':
+                if (isString) {
+                    str += c;
+                } else if (isFunction) {
+                    args.push(str);
+                    str = '';
+                }
+                break;
+
+            case ' ':
+            case '\t':
+                if (isString) {
+                    str += c;
+                } else if (str) {
+                    addOtherToken(tokens, str);
+                    str = '';
+                }
+                break;
+
+            default:
+                str += c;
+        }
+
+        if (c !== '\\') {
+            isEscaped = false;
+        }
+    }
+
+    if (str) {
+        addOtherToken(tokens, str);
+    }
+
+    if (cache) {
+        cache[content] = tokens;
+    }
+
+    return tokens;
+};
+
+var addOtherToken = function addOtherToken(tokens, identifier) {
+    switch (identifier) {
+        case 'open-quote':
+            tokens.push({ type: TOKEN_TYPE.OPENQUOTE });
+            break;
+        case 'close-quote':
+            tokens.push({ type: TOKEN_TYPE.CLOSEQUOTE });
+            break;
+    }
+};
+
+var getQuote = function getQuote(style, isOpening, quoteDepth) {
+    var quotes = style.quotes ? style.quotes.split(/\s+/) : ["'\"'", "'\"'"];
+    var idx = quoteDepth * 2;
+    if (idx >= quotes.length) {
+        idx = quotes.length - 2;
+    }
+    if (!isOpening) {
+        ++idx;
+    }
+    return quotes[idx].replace(/^["']|["']$/g, '');
+};
+
+var formatCounterValue = function formatCounterValue(counter, glue, format) {
+    var len = counter.length;
+    var result = '';
+
+    for (var i = 0; i < len; i++) {
+        if (i > 0) {
+            result += glue || '';
+        }
+        result += (0, _ListItem.createCounterText)(counter[i], (0, _listStyle.parseListStyleType)(format || 'decimal'), false);
+    }
+
+    return result;
 };
 
 /***/ })
